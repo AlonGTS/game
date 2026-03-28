@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -111,23 +110,23 @@
 
 <div id="screen-game" class="screen hidden">
   <div class="hud">
-    <div class="hud-p">
-      <div class="hud-pname">שחקן 1</div>
-      <div class="hud-pscore sc1c" id="sc1">0</div>
+    <div class="hud-p" id="p2hud">
+      <div class="hud-pname">שחקן 2</div>
+      <div class="hud-pscore sc2c" id="sc2">0</div>
     </div>
     <div class="hud-mid">
       <div class="timer-v" id="tv">30</div>
       <div class="level-v" id="lv">רמה 1</div>
     </div>
-    <div class="hud-p p1side" id="p2hud">
-      <div class="hud-pname">שחקן 2</div>
-      <div class="hud-pscore sc2c" id="sc2">0</div>
+    <div class="hud-p p1side">
+      <div class="hud-pname">שחקן 1</div>
+      <div class="hud-pscore sc1c" id="sc1">0</div>
     </div>
   </div>
   <div id="arena">
     <div class="vline" id="vl" style="display:none"></div>
-    <div class="zlabel" id="zl" style="display:none;right:22%">שחקן 1</div>
-    <div class="zlabel" id="zr" style="display:none;left:22%">שחקן 2</div>
+    <div class="zlabel" id="zl" style="display:none;right:22%">שחקן 2</div>
+    <div class="zlabel" id="zr" style="display:none;left:22%">שחקן 1</div>
   </div>
 </div>
 
@@ -224,7 +223,7 @@ function catchIt(id,cx,cy){
   const rect=arena.getBoundingClientRect();
   const lx=cx-rect.left;
   let player=0;
-  if(mode===2) player=lx>aW/2?1:0;
+  if(mode===2) player=lx>aW/2?0:1;
   const pts=item.isBad?-2:1+Math.floor(level/2);
   scores[player]=Math.max(0,scores[player]+pts);
   document.getElementById('sc'+(player+1)).textContent=scores[player];
