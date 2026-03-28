@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
 <title>תפוס את הכוכב!</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; touch-action:none; }
-  html,body { height:100%; width:100%; overflow:hidden; position:fixed; }
+  html,body { height:100%; width:100%; overflow:hidden; position:fixed; direction:rtl; }
   body { font-family:'Varela Round',sans-serif; background:#1a0533; height:100vh; width:100vw; }
   canvas#bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
   .screen { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10; padding:16px; gap:14px; }
@@ -35,13 +34,16 @@
   .start-btn:active { transform:scale(0.95); }
 
   #screen-game { padding:0; justify-content:flex-start; }
-  .hud { width:100%; display:flex; align-items:stretch; background:rgba(0,0,0,0.5); flex-shrink:0; z-index:20; }
-  .hud-p { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 6px; }
-  .hud-p.p1side { border-left:1px solid rgba(255,255,255,0.1); }
+
+  /* HUD - no RTL tricks, explicit left/right */
+  .hud { width:100%; display:flex; flex-direction:row; align-items:stretch; background:rgba(0,0,0,0.5); flex-shrink:0; z-index:20; }
+  .hud-p1 { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 6px; border-right:1px solid rgba(255,255,255,0.1); }
+  .hud-mid { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 12px; min-width:80px; }
+  .hud-p2 { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 6px; border-left:1px solid rgba(255,255,255,0.1); }
   .hud-pname { font-size:clamp(10px,2.5vw,13px); color:rgba(255,255,255,0.55); margin-bottom:2px; }
   .hud-pscore { font-family:'Fredoka One',cursive; font-size:clamp(28px,7vw,38px); line-height:1; }
-  .sc1c { color:#ff6eb4; } .sc2c { color:#5bc8ff; }
-  .hud-mid { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 12px; min-width:80px; }
+  .sc1c { color:#ff6eb4; }
+  .sc2c { color:#5bc8ff; }
   .timer-v { font-family:'Fredoka One',cursive; font-size:clamp(28px,7vw,38px); color:white; line-height:1; }
   .timer-v.urg { color:#ff4444; animation:pulseT 0.35s infinite alternate; }
   @keyframes pulseT { to{transform:scale(1.25)} }
@@ -49,7 +51,9 @@
 
   #arena { position:relative; flex:1; width:100%; overflow:hidden; }
   .vline { position:absolute; left:50%; top:0; width:2px; height:100%; background:rgba(255,255,255,0.12); z-index:5; pointer-events:none; }
-  .zlabel { position:absolute; top:12px; font-family:'Fredoka One',cursive; font-size:clamp(12px,3vw,16px); color:rgba(255,255,255,0.25); pointer-events:none; z-index:6; }
+  /* Zone labels - explicit positioning, no RTL */
+  .zleft  { position:absolute; top:12px; left:12%;  font-family:'Fredoka One',cursive; font-size:clamp(12px,3vw,16px); color:rgba(255,255,255,0.25); pointer-events:none; z-index:6; }
+  .zright { position:absolute; top:12px; right:12%; font-family:'Fredoka One',cursive; font-size:clamp(12px,3vw,16px); color:rgba(255,255,255,0.25); pointer-events:none; z-index:6; }
 
   .item { position:absolute; display:flex; align-items:center; justify-content:center; cursor:pointer; will-change:transform; z-index:15; border-radius:50%; }
   .pop { position:absolute; pointer-events:none; z-index:30; font-family:'Fredoka One',cursive; font-size:clamp(20px,5vw,28px); animation:floatUp 0.8s ease forwards; white-space:nowrap; }
@@ -110,23 +114,26 @@
 
 <div id="screen-game" class="screen hidden">
   <div class="hud">
-    <div class="hud-p" id="p2hud">
-      <div class="hud-pname">שחקן 2</div>
-      <div class="hud-pscore sc2c" id="sc2">0</div>
+    <!-- P1 always on the LEFT side of screen -->
+    <div class="hud-p1">
+      <div class="hud-pname">שחקן 1</div>
+      <div class="hud-pscore sc1c" id="sc1">0</div>
     </div>
     <div class="hud-mid">
       <div class="timer-v" id="tv">30</div>
       <div class="level-v" id="lv">רמה 1</div>
     </div>
-    <div class="hud-p p1side">
-      <div class="hud-pname">שחקן 1</div>
-      <div class="hud-pscore sc1c" id="sc1">0</div>
+    <!-- P2 always on the RIGHT side of screen -->
+    <div class="hud-p2" id="p2hud">
+      <div class="hud-pname">שחקן 2</div>
+      <div class="hud-pscore sc2c" id="sc2">0</div>
     </div>
   </div>
   <div id="arena">
     <div class="vline" id="vl" style="display:none"></div>
-    <div class="zlabel" id="zl" style="display:none;right:22%">שחקן 2</div>
-    <div class="zlabel" id="zr" style="display:none;left:22%">שחקן 1</div>
+    <!-- Left zone label = P1, Right zone label = P2 -->
+    <div class="zleft"  id="zl" style="display:none">שחקן 1</div>
+    <div class="zright" id="zr" style="display:none">שחקן 2</div>
   </div>
 </div>
 
@@ -168,8 +175,8 @@ window.startGame=function(){
   document.getElementById('p2hud').style.opacity=mode===2?'1':'0';
   const arena=document.getElementById('arena');
   arena.querySelectorAll('.item,.pop,.ripple').forEach(e=>e.remove());
-  const show2=mode===2?'block':'none';
-  ['vl','zl','zr'].forEach(id=>document.getElementById(id).style.display=show2);
+  const s2=mode===2?'block':'none';
+  ['vl','zl','zr'].forEach(id=>document.getElementById(id).style.display=s2);
   aW=arena.offsetWidth; aH=arena.offsetHeight;
   runCD(()=>{active=true;spawnOne();spIv=setInterval(spawnOne,cfg.ms);tmIv=setInterval(tick,1000);raf=requestAnimationFrame(loop);});
 };
@@ -198,8 +205,13 @@ function spawnOne(){
   const emoji=(isBad?BAD:GOOD)[Math.floor(Math.random()*(isBad?BAD:GOOD).length)];
   const size=Math.min(74,Math.max(54,aW*0.13));
   let x;
-  if(mode===2){const z=Math.random()<0.5?0:1;x=z===0?aW/2+Math.random()*(aW/2-size-8)+4:Math.random()*(aW/2-size-8)+4;}
-  else x=Math.random()*(aW-size-10)+5;
+  if(mode===2){
+    const z=Math.random()<0.5?0:1;
+    // z=0 → left half (P1), z=1 → right half (P2)
+    x=z===0 ? Math.random()*(aW/2-size-8)+4 : aW/2+Math.random()*(aW/2-size-8)+4;
+  } else {
+    x=Math.random()*(aW-size-10)+5;
+  }
   const id='i'+(idc++);
   const el=document.createElement('div');
   el.className='item'; el.id=id;
@@ -222,8 +234,9 @@ function catchIt(id,cx,cy){
   const arena=document.getElementById('arena');
   const rect=arena.getBoundingClientRect();
   const lx=cx-rect.left;
-  let player=0;
-  if(mode===2) player=lx>aW/2?0:1;
+  // Left half of screen = P1 (index 0), Right half = P2 (index 1)
+  let player = lx < aW/2 ? 0 : 1;
+  if(mode===1) player=0;
   const pts=item.isBad?-2:1+Math.floor(level/2);
   scores[player]=Math.max(0,scores[player]+pts);
   document.getElementById('sc'+(player+1)).textContent=scores[player];
