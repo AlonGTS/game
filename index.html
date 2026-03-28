@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; touch-action:none; }
-  html,body { height:100%; width:100%; overflow:hidden; position:fixed; direction:rtl; }
+  html,body { height:100%; width:100%; overflow:hidden; position:fixed; direction:ltr; }
   body { font-family:'Varela Round',sans-serif; background:#1a0533; height:100vh; width:100vw; }
   canvas#bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
   .screen { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10; padding:16px; gap:14px; }
@@ -114,26 +114,26 @@
 
 <div id="screen-game" class="screen hidden">
   <div class="hud">
-    <!-- P1 always on the LEFT side of screen -->
-    <div class="hud-p1">
-      <div class="hud-pname">שחקן 1</div>
-      <div class="hud-pscore sc1c" id="sc1">0</div>
+    <!-- P2 on LEFT side of screen -->
+    <div class="hud-p1" id="p2hud">
+      <div class="hud-pname">שחקן 2</div>
+      <div class="hud-pscore sc2c" id="sc2">0</div>
     </div>
     <div class="hud-mid">
       <div class="timer-v" id="tv">30</div>
       <div class="level-v" id="lv">רמה 1</div>
     </div>
-    <!-- P2 always on the RIGHT side of screen -->
-    <div class="hud-p2" id="p2hud">
-      <div class="hud-pname">שחקן 2</div>
-      <div class="hud-pscore sc2c" id="sc2">0</div>
+    <!-- P1 on RIGHT side of screen -->
+    <div class="hud-p2">
+      <div class="hud-pname">שחקן 1</div>
+      <div class="hud-pscore sc1c" id="sc1">0</div>
     </div>
   </div>
   <div id="arena">
     <div class="vline" id="vl" style="display:none"></div>
     <!-- Left zone label = P1, Right zone label = P2 -->
-    <div class="zleft"  id="zl" style="display:none">שחקן 1</div>
-    <div class="zright" id="zr" style="display:none">שחקן 2</div>
+    <div class="zleft"  id="zl" style="display:none">שחקן 2</div>
+    <div class="zright" id="zr" style="display:none">שחקן 1</div>
   </div>
 </div>
 
@@ -234,8 +234,8 @@ function catchIt(id,cx,cy){
   const arena=document.getElementById('arena');
   const rect=arena.getBoundingClientRect();
   const lx=cx-rect.left;
-  // Left half of screen = P1 (index 0), Right half = P2 (index 1)
-  let player = lx < aW/2 ? 0 : 1;
+  // Right half of screen = P1 (index 0), Left half = P2 (index 1)
+  let player = lx > aW/2 ? 0 : 1;
   if(mode===1) player=0;
   const pts=item.isBad?-2:1+Math.floor(level/2);
   scores[player]=Math.max(0,scores[player]+pts);
